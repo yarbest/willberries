@@ -33,7 +33,7 @@ const mySwiper = new Swiper('.swiper-container', {
         event.preventDefault();
         let currentBlock = document.querySelector(link.getAttribute('href')); // elem.getAttribute('href') вернет нам id того блока, на который ведет эта ссылка
         let currentWindowScroll = window.pageYOffset; //начинаем прокручивать страницу из текущего значения прокрутки, чтобы не телепортироваться
-        let scrollHeigthPerMove = Math.abs(currentWindowScroll - currentBlock.offsetTop) > document.documentElement.clientHeight ? 60 : 30; //если блок не видно на текущем окне, то нужно быстро прокручивать
+        let scrollHeigthPerMove = Math.abs(currentWindowScroll - currentBlock.offsetTop) > document.documentElement.clientHeight ? 60 : 30; //если расстояние от окна до блока больше чем высота окна, то прокручивай быстро, то есть если блок не видно на текущем окне, то нужно быстро прокручивать
         //Если в данный момент окно прокручено дальше, чем располагается нужный блок, то нужно прокручивать на верх, уменьшая значение currentWindowScroll
         if (currentWindowScroll >= currentBlock.offsetTop) {
             const scrollAbove = () => {
