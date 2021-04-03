@@ -30,19 +30,19 @@
                     <nav>
                         <ul class="navigation d-flex justify-content-around">
                             <li class="navigation-item">
-                                <a href="#goods" class="navigation-link" data-field="gender">Womens</a>
+                                <a href="#" class="navigation-link" data-key="gender" data-value="Womens">Womens</a>
                             </li>
                             <li class="navigation-item">
-                                <a href="#goods" class="navigation-link" data-field="gender">Mens</a>
+                                <a href="#" class="navigation-link" data-key="gender" data-value="Mens">Mens</a>
                             </li>
                             <li class="navigation-item">
-                                <a href="#" class="navigation-link" data-field="category">Clothing</a>
+                                <a href="#" class="navigation-link" data-key="category" data-value="Clothing">Clothing</a>
                             </li>
                             <li class="navigation-item">
-                                <a href="#" class="navigation-link" data-field="category">Accessories</a>
+                                <a href="#" class="navigation-link" data-key="category" data-value="Accessories">Accessories</a>
                             </li>
                             <li class="navigation-item">
-                                <a href="#" class="navigation-link" data-field="category">Shoes</a>
+                                <a href="#" class="navigation-link" data-key="category" data-value="Shoes">Shoes</a>
                             </li>
                             <li class="navigation-item">
                                 <a href="#" class="navigation-link">All</a>
@@ -153,7 +153,7 @@
                     <div class="card card-1 mb-4">
                         <h3 class="card-title">Fashion Month Ready in Capital Shop</h3>
                         <p class="card-text">Bags & Acsessories & Lingerie & Sportswear & Beauty & Swimwear</p>
-                        <button class="button">
+                        <button class="button btn-show-goods" data-key="category" data-value="Accessories">
                             <span class="button-text">View all</span>
                             <img src="img/arrow.svg" alt="icon: arrow" class="button-icon" />
                         </button>
@@ -165,7 +165,7 @@
                     <div class="card card-2 mb-4">
                         <h3 class="card-title text-light">Catch the Sun: Spring Break Styles From $5.99</h3>
                         <p class="card-text text-light">Sweaters & Hoodies & Puffer Jackets & Coats and Jackets & Knit</p>
-                        <button class="button">
+                        <button class="button btn-show-goods" data-key="category" data-value="Clothing">
                             <span class="button-text">View all</span>
                             <img src="img/arrow.svg" alt="icon: arrow" class="button-icon" />
                         </button>
@@ -210,7 +210,7 @@
                 </div>
                 <!-- /.col-9 -->
                 <div class="col-3 d-flex justify-content-end">
-                    <a href="#" class="more">View All</a>
+                    <a href="#body" class="more">View All</a>
                 </div>
                 <!-- /.col-3 -->
             </div>
@@ -551,7 +551,7 @@
                     </div>
                     <!-- /.col-4 -->
                     <div class="col-lg-2 col-sm-1 d-flex justify-content-end">
-                        <a href="#body" class="top-link d-flex align-items-center">
+                        <a href="#body" class="top-link d-flex align-items-center scroll-link">
                             <span class="top-link-text">Top</span>
                             <img src="img/top.svg" alt="icon: arrow top" />
                         </a>
