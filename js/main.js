@@ -7,27 +7,39 @@ const mySwiper = new Swiper('.swiper-container', {
         prevEl: '.slider-button-prev',
     },
 });
-
-//Cart
+//Modal
 (function () {
     const buttonCart = document.querySelector('.button-cart');
     const modalCart = document.querySelector('#modal-cart');
 
-    const openModal = () => modalCart.classList.add('show');
+    const openModal = () => {
+        modalCart.classList.add('show');
 
-    const closeModal = () => modalCart.classList.remove('show');
+        document.body.style.paddingRight = `${window.innerWidth - document.documentElement.offsetWidth}px`; //компенсируем сдвиг, при убирании полосы прокрутки
+        document.body.style.overflow = 'hidden'; //эта строка должна стоять после добавления отступа для body, так как при overflow = 'hidden' полоса прокрутки пропадает, и window.innerWidth уменьшается, и значение paddinga будет не правильным
+
+        document.addEventListener('keydown', closeModal); //обработчик на document висит только при открытом модальном окне
+    };
+
+    const closeModal = (event) => {
+        if (event.type === 'keydown' && event.key !== 'Escape') return; //если нажали на клавиатуру, но это не Escape, тогда модалку закрывать не нужно
+
+        modalCart.classList.remove('show');
+        document.body.removeAttribute('style');
+        document.removeEventListener('keydown', closeModal);
+    };
 
     buttonCart.addEventListener('click', openModal);
 
     modalCart.addEventListener('click', (event) => {
         const target = event.target;
-        if (target.matches('#modal-cart, .modal-close')) closeModal();
+        if (target.matches('#modal-cart') || target.matches('.modal-close')) closeModal(event);
     });
 })();
 
 //smooth scroll
 (function () {
-    const scrollLinks = document.querySelectorAll('a[href*="#"]');
+    const scrollLinks = document.querySelectorAll('a[href^="#"]');
 
     const scrollToBlock = (event, link) => {
         event.preventDefault();
@@ -71,4 +83,46 @@ const mySwiper = new Swiper('.swiper-container', {
             scrollToBlock(event, link);
         });
     });
+})();
+
+//goods
+(function () {
+    const btnShowMore = document.querySelector('.more');
+    const navigationItem = document.querySelectorAll('.navigation-item');
+    const longGoodsList = document.querySelector('.long-goods-list');
+
+    const getGoods = async () => {
+        const response = await fetch('db/db.json'); //пока эта строчка не выполнится - следующая не начнется
+        if (response.ok) return response.json();
+        else throw new Error('Error ' + response.status);
+    };
+
+    const createCardElement = (cardInfo) => {
+        const card = document.createElement('div');
+        card.classList.add('col-lg-3', 'col-sm-6');
+        card.innerHTML = `
+            <div class="goods-card">
+                ${cardInfo.label ? `<span class="label">${cardInfo.label}</span>` : ''}
+                <img src="db/${cardInfo.img}" alt="image: ${cardInfo.name}" class="goods-image" />
+                <h3 class="goods-title">${cardInfo.name}</h3>
+                <p class="goods-description">${cardInfo.description}</p>
+                <button class="button goods-card-btn add-to-cart" data-id="${cardInfo.id}">
+                    <span class="button-price">$${cardInfo.price}</span>
+                </button>
+            </div>
+        `;
+        return card;
+    };
+
+    const renderCards = (data) => {
+        longGoodsList.textContent = '';
+
+        //На основании каждого объекта с инфой о товаре, создается html-элемент, в который вставляется инфа из этого объекта
+        const cardElements = data.map((cardInfo) => createCardElement(cardInfo)); //получаем массив HTML-элементов
+        longGoodsList.append(...cardElements); //append может сразу принимать несколько аргументов для вставки на страницу, через запятую, а spread оператор разложит элементы массива как раз через запятую
+
+        document.body.classList.add('show-goods'); //при наличии этого класса у body, на странице скроется слайдер, и блок с товарами, но появится другой (длинный)
+    };
+
+    getGoods().then((result) => renderCards(result));
 })();
