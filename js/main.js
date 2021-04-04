@@ -98,8 +98,7 @@ const scrollToBlock = (event, link) => {
 
 //get goods, show goods, filter goods
 (function () {
-    const btnShowMore = document.querySelector('.more');
-    const chooseCategoryElems = document.querySelectorAll('.navigation-link, .btn-show-goods');
+    const chooseCategoryElems = document.querySelectorAll('.navigation-link, .btn-show-goods, .more');
     const longGoodsList = document.querySelector('.long-goods-list');
 
     const getGoods = async () => {
@@ -141,23 +140,13 @@ const scrollToBlock = (event, link) => {
     const filterCards = (key, value) => {
         getGoods()
             .then((result) => {
-                const filtered = result.filter((cardInfo) => cardInfo[key] === value); //если взятые key и value, из дата-атрибутов ссылки, совпадают со значнием текущего объекта, то этот объект подходит
+                const filtered = result.filter((cardInfo) => cardInfo[key] === value); //если взятые key и value, из дата-атрибутов, совпадают со значнием текущего объекта, то этот объект подходит
                 renderCards(filtered);
             })
             .catch((err) => console.error(err));
     };
 
-    //при нажатии на кнопку, на сервер отправляется запрос, и когда получим ответ, тогда начнет добавлять ВСЕ карточки товаров
-    btnShowMore.addEventListener('click', (event) => {
-        event.preventDefault();
-        getGoods()
-            .then((result) => renderCards(result))
-            .catch((err) => console.error(err));
-
-        setTimeout(() => scrollToBlock(event, btnShowMore), 500); //пускай сначала загрузятся товары, а потом прогрутим на верх
-    });
-
-    //показываем товары только нужной категории
+    //показываем товары только нужной категории, но если была нажата кнопка All или View All, то у них нету дата-атрибутов, и в функцию filterCards передадутся два undefined, и там при фильтрации, будет условие cardInfo[undefined] === undefined -> true, и так как функция фльтрации на всех элементах вернет true, то все товары выведутся на странице
     chooseCategoryElems.forEach((item) => {
         item.addEventListener('click', (event) => {
             event.preventDefault();
