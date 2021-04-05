@@ -40,23 +40,63 @@ button {
 
 .button {
     padding: 10px 20px;
-    background: #4592FF;
+    background-color: #4592ff;
     border-radius: 20px;
     border: none;
     color: #fff;
-    font-family: 'Lato',
-    sans-serif;
+    font-family: 'Lato', sans-serif;
     font-style: normal;
     font-weight: 900;
     font-size: 14px;
     line-height: 20px;
     display: flex;
     align-items: center;
+    transition: background-color, transform 0.2s;
+    outline: none;
 }
 
-.button-icon, .button-price {
+@-webkit-keyframes slide-top {
+    0% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+    }
+    50% {
+        -webkit-transform: translateY(-30px);
+        transform: translateY(-30px);
+    }
+    100% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+    }
+}
+@keyframes slide-top {
+    0% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+    }
+    50% {
+        -webkit-transform: translateY(-30px);
+        transform: translateY(-30px);
+    }
+    100% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+    }
+}
+
+.button:hover {
+    background-color: #064fb6;
+}
+
+.button.active {
+    -webkit-animation: slide-top 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    animation: slide-top 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    background-color: lightgreen;
+}
+
+.button-icon,
+.button-price {
     margin-right: 10px;
-    
 }
 
 .button-icon {
@@ -65,7 +105,6 @@ button {
 
 .button-icon:last-child {
     margin-right: 0;
-    
 }
 
 .cart-count {
@@ -92,7 +131,7 @@ button {
 }
 
 .slide-1 {
-    background: #B4D1E0 url('../img/slide-image-1.png') no-repeat top right 30%;
+    background: #b4d1e0 url('../img/slide-image-1.png') no-repeat top right 30%;
 }
 
 .slide-2 {
@@ -100,7 +139,7 @@ button {
 }
 
 .label {
-    background-color: #3DC47E;
+    background-color: #3dc47e;
     border-radius: 3px;
     padding: 5px 12px;
     color: #fff;
@@ -109,11 +148,10 @@ button {
 }
 
 .slide-title {
-    color: #262D33;
+    color: #262d33;
     font-size: 55px;
     line-height: 70px;
-    font-family: 'Roboto Slab',
-    serif;
+    font-family: 'Roboto Slab', serif;
     margin-top: 20px;
     margin-bottom: 15px;
 }
@@ -121,7 +159,7 @@ button {
 .slide-description {
     font-size: 18px;
     line-height: 30px;
-    color: #4B5157;
+    color: #4b5157;
     max-width: 335px;
     margin-bottom: 40px;
 }
@@ -154,7 +192,7 @@ button {
 }
 
 .card-1 {
-    background: #E3E2E3 url('../img/card-image-1.jpg') no-repeat top right;
+    background: #e3e2e3 url('../img/card-image-1.jpg') no-repeat top right;
     background-size: cover;
 }
 
@@ -165,7 +203,7 @@ button {
 
 .card-3 {
     padding-top: 35px;
-    background: #CCD5E6 url('../img/card-image-3.png') no-repeat top right 10%;
+    background: #ccd5e6 url('../img/card-image-3.png') no-repeat top right 10%;
     background-size: contain;
 }
 
@@ -175,7 +213,7 @@ button {
     align-items: flex-start;
     padding-top: 35px;
     padding-left: 25px;
-    background: #FF4F52 url('../img/card-image-4.png') no-repeat top right;
+    background: #ff4f52 url('../img/card-image-4.png') no-repeat top right;
     background-size: contain;
 }
 
@@ -185,16 +223,15 @@ button {
     margin: auto auto 0;
 }
 
-.goods-card-btn .button-price{
+.goods-card-btn .button-price {
     margin: 0;
 }
 
 .card-title {
-    color: #262D33;
+    color: #262d33;
     font-size: 25px;
     line-height: 30px;
-    font-family: 'Roboto Slab',
-    serif;
+    font-family: 'Roboto Slab', serif;
     max-width: 222px;
     margin: 0;
 }
@@ -209,7 +246,7 @@ button {
 
 .card-text {
     max-width: 176px;
-    color: #4B5157;
+    color: #4b5157;
     font-size: 14px;
     line-height: 20px;
     margin-bottom: 25px;
@@ -217,7 +254,6 @@ button {
 
 .card-text.large {
     max-width: 320px;
-
 }
 
 .card-price {
@@ -228,20 +264,19 @@ button {
 }
 
 .text-light {
-    color: #fff
+    color: #fff;
 }
 
 .section-title {
-    font-family: 'Roboto Slab',
-    serif;
+    font-family: 'Roboto Slab', serif;
     font-size: 25px;
     line-height: 30px;
-    color: #262D33;
+    color: #262d33;
 }
 
 .more {
     text-decoration: none;
-    color: #262D33;
+    color: #262d33;
     font-weight: 900;
     font-size: 14px;
     line-height: 20px;
@@ -255,6 +290,7 @@ button {
     text-align: center;
     padding: 30px 35px 35px;
     min-height: 440px;
+    height: 100%;
 }
 
 .goods-card .label {
@@ -266,11 +302,10 @@ button {
 .goods-title {
     margin-top: 15px;
     margin-bottom: 5px;
-    color: #262D33;
+    color: #262d33;
     font-size: 16px;
     line-height: 25px;
-    font-family: 'Roboto Slab',
-    serif;
+    font-family: 'Roboto Slab', serif;
 }
 
 .goods-image {
@@ -279,13 +314,13 @@ button {
 }
 
 .goods-description {
-    color: #4B5157;
+    color: #4b5157;
     font-size: 14px;
     line-height: 20px;
 }
 
 .goods-price {
-    color: #262D33;
+    color: #262d33;
     margin-top: 30px;
     font-size: 18px;
     line-height: 30px;
@@ -303,7 +338,7 @@ button {
 }
 
 .footer {
-    background: #8F79D4;
+    background: #8f79d4;
     padding-top: 45px;
     padding-bottom: 40px;
     color: #fff;
@@ -327,7 +362,7 @@ button {
 }
 
 .footer-text {
-    color: #E7D9FF;
+    color: #e7d9ff;
     font-size: 14px;
     line-height: 20px;
 }
@@ -360,7 +395,7 @@ button {
     left: 0;
     right: 0;
     z-index: 999;
-    background-color: rgba(0,0,0,0.3);
+    background-color: rgba(0, 0, 0, 0.3);
 }
 
 .overlay.show {
@@ -372,11 +407,11 @@ button {
     min-width: 600px;
     max-height: 400px;
     padding: 30px;
-    overflow: scroll;
+    overflow: auto;
     position: relative;
 }
 
-.modal-header{
+.modal-header {
     display: flex;
     justify-content: space-between;
 }
@@ -417,12 +452,12 @@ button {
 }
 
 .cart-table th,
-.cart-table td{
+.cart-table td {
     text-align: left;
-    border: 1px solid black
+    border: 1px solid black;
 }
 
-.cart-buy{
+.cart-buy {
     background-color: #28a745;
     border-color: #28a745;
     display: block;
@@ -430,11 +465,9 @@ button {
     height: 40px;
 }
 
-
 .mw-160 {
     max-width: 160px;
 }
-
 
 .col-price {
     width: 100px;
@@ -460,7 +493,6 @@ button {
     width: 5px;
 }
 
-
 @media (max-width: 1200px) {
     .slide-1 {
         background-size: cover;
@@ -481,7 +513,6 @@ button {
         max-height: 300px;
         padding: 20px;
     }
-
 }
 
 @media (max-width: 576px) {
@@ -509,5 +540,4 @@ button {
         max-height: 400px;
         padding: 20px;
     }
-
 }

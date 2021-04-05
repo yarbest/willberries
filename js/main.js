@@ -10,36 +10,6 @@ const mySwiper = new Swiper('.swiper-container', {
     },
 });
 
-//Modal
-(function () {
-    const buttonCart = document.querySelector('.button-cart');
-    const modalCart = document.querySelector('#modal-cart');
-
-    const openModal = () => {
-        modalCart.classList.add('show');
-
-        document.body.style.paddingRight = `${window.innerWidth - document.documentElement.offsetWidth}px`; //компенсируем сдвиг, при убирании полосы прокрутки
-        document.body.style.overflow = 'hidden'; //эта строка должна стоять после добавления отступа для body, так как при overflow = 'hidden' полоса прокрутки пропадает, и window.innerWidth уменьшается, и значение paddinga будет не правильным
-
-        document.addEventListener('keydown', closeModal); //обработчик на document висит только при открытом модальном окне, НО, теперь при нажатии на ЛЮБУЮ клавишу - будет закрываться модалка, поэтому это нужно отловить при закрытии, нужно только при escape
-    };
-
-    const closeModal = (event) => {
-        if (event.type === 'keydown' && event.key !== 'Escape') return; //если нажали на клавиатуру, но это не Escape, тогда модалку закрывать не нужно
-
-        modalCart.classList.remove('show');
-        document.body.removeAttribute('style');
-        document.removeEventListener('keydown', closeModal);
-    };
-
-    buttonCart.addEventListener('click', openModal);
-
-    modalCart.addEventListener('click', (event) => {
-        const target = event.target;
-        if (target.matches('#modal-cart') || target.matches('.modal-close')) closeModal(event);
-    });
-})();
-
 //smooth scroll
 const scrollToBlock = (event, link) => {
     event.preventDefault();
@@ -86,6 +56,142 @@ const scrollToBlock = (event, link) => {
     }
 };
 
+//get goods
+const getGoods = async () => {
+    const response = await fetch('db/db.json'); //пока эта строчка не выполнится - следующая не начнется
+    if (response.ok) return response.json();
+    else throw new Error('Error ' + response.status);
+};
+
+//cart and moal
+(function () {
+    //Часть, ответсвенная за работу корзины
+    const cartTableGoods = document.querySelector('.cart-table__goods');
+    const cartTableTotal = document.querySelector('.cart-table__total');
+    const cartCount = document.querySelector('.cart-count');
+
+    const cart = {
+        cartGoods: [],
+
+        renderCart() {
+            cartTableGoods.textContent = '';
+            this.cartGoods.forEach(({ id, name, price, count }) => {
+                const trGood = document.createElement('tr');
+                trGood.className = 'cart-item';
+                trGood.dataset.id = id;
+
+                trGood.innerHTML = `
+                    <td>${name}</td>
+                    <td>${price}$</td>
+                    <td><button class="cart-btn-minus">-</button></td>
+                    <td>${count}</td>
+                    <td><button class="cart-btn-plus">+</button></td>
+                    <td>${price * count}$</td>
+                    <td><button class="cart-btn-delete">x</button></td>
+                `;
+                cartTableGoods.append(trGood);
+            });
+
+            const totalPrice = this.cartGoods.reduce((total, goodInfo) => {
+                return total + goodInfo.price * goodInfo.count;
+            }, 0);
+
+            cartTableTotal.textContent = totalPrice + '$';
+        },
+
+        addGood(id) {
+            const goodInfo = cart.cartGoods.find((goodInfo) => goodInfo.id === id);
+            //если в карзине уже есть товар, который пытаемся добавить, то в корзине нужно просто увеличить count для данного товара, а не добавлять еще такой же
+            if (goodInfo) {
+                this.plusGood(id);
+            } else {
+                getGoods()
+                    .then((result) => result.find((goodInfo) => goodInfo.id === id)) //вернет объект с данными о товаре, у которого индекс равен индексу кнопки Shop Now, на которую нажали
+                    .then(({ id, name, price }) => this.cartGoods.push({ id, name, price, count: 1 })) //добавляем в cartGoods, информацию из нужного товара
+                    .catch((err) => console.error('Ошибка: ' + err));
+            }
+        },
+
+        deleteGood(id) {
+            this.cartGoods.forEach((goodInfo, i, arr) => {
+                if (goodInfo.id === id) arr.splice(i, 1);
+            });
+            this.renderCart();
+        },
+
+        minusGood(id) {
+            this.cartGoods.forEach((goodInfo) => {
+                if (goodInfo.id === id) {
+                    if (goodInfo.count === 1) return;
+                    goodInfo.count--;
+                }
+            });
+            this.renderCart();
+        },
+
+        plusGood(id) {
+            this.cartGoods.forEach((goodInfo) => {
+                if (goodInfo.id === id) {
+                    if (goodInfo.count === 10) return;
+                    goodInfo.count++;
+                }
+            });
+            this.renderCart();
+        },
+    };
+
+    //Делегирование
+    cartTableGoods.addEventListener('click', (event) => {
+        const target = event.target;
+
+        if (target.tagName === 'BUTTON') {
+            const goodId = target.closest('.cart-item').dataset.id;
+
+            if (target.matches('.cart-btn-plus')) cart.plusGood(goodId);
+            else if (target.matches('.cart-btn-minus')) cart.minusGood(goodId);
+            else if (target.matches('.cart-btn-delete')) cart.deleteGood(goodId);
+        }
+    });
+
+    document.body.addEventListener('click', (event) => {
+        const btnAddToCart = event.target.closest('.add-to-cart');
+        if (btnAddToCart) {
+            btnAddToCart.classList.add('active');
+            cart.addGood(btnAddToCart.dataset.id);
+        }
+    });
+
+    //Часть, ответсвенная за модальное окно
+    const buttonCart = document.querySelector('.button-cart');
+    const modalCart = document.querySelector('#modal-cart');
+
+    //при открытии модального окна, еще будет рендериться корзина
+    const openModal = () => {
+        cart.renderCart();
+
+        modalCart.classList.add('show');
+        document.body.style.paddingRight = `${window.innerWidth - document.documentElement.offsetWidth}px`; //компенсируем сдвиг, при убирании полосы прокрутки
+        document.body.style.overflow = 'hidden'; //эта строка должна стоять после добавления отступа для body, так как при overflow = 'hidden' полоса прокрутки пропадает, и window.innerWidth уменьшается, и значение paddinga будет не правильным
+
+        document.addEventListener('keydown', closeModal); //обработчик на document висит только при открытом модальном окне, НО, теперь при нажатии на ЛЮБУЮ клавишу - будет закрываться модалка, поэтому это нужно отловить при закрытии, нужно только при escape
+    };
+
+    const closeModal = (event) => {
+        if (event.type === 'keydown' && event.key !== 'Escape') return; //если нажали на клавиатуру, но это не Escape, тогда модалку закрывать не нужно
+
+        modalCart.classList.remove('show');
+        document.body.removeAttribute('style');
+        document.removeEventListener('keydown', closeModal);
+    };
+
+    buttonCart.addEventListener('click', openModal);
+
+    modalCart.addEventListener('click', (event) => {
+        const target = event.target;
+        if (target.matches('#modal-cart') || target.matches('.modal-close')) closeModal(event);
+    });
+})();
+
 //scroll links
 (function () {
     const scrollLinks = document.querySelectorAll('a.scroll-link');
@@ -98,14 +204,8 @@ const scrollToBlock = (event, link) => {
 
 //get goods, show goods, filter goods
 (function () {
-    const chooseCategoryElems = document.querySelectorAll('.navigation-link, .btn-show-goods, .more');
+    const chooseCategoryElems = document.querySelectorAll('.navigation-link, .show-category-goods, .more');
     const longGoodsList = document.querySelector('.long-goods-list');
-
-    const getGoods = async () => {
-        const response = await fetch('db/db.json'); //пока эта строчка не выполнится - следующая не начнется
-        if (response.ok) return response.json();
-        else throw new Error('Error ' + response.status);
-    };
 
     //подготавливаем карточку товара для вывода
     const createCardElement = ({ label, img, name, description, id, price }) => {
@@ -130,7 +230,7 @@ const scrollToBlock = (event, link) => {
         longGoodsList.textContent = '';
 
         //На основании каждого объекта с инфой о товаре, создается html-элемент, в который вставляется инфа из этого объекта
-        const cardElements = cardsInfo.map((cardInfo) => createCardElement(cardInfo)); //получаем массив HTML-элементов
+        const cardElements = cardsInfo.map((goodInfo) => createCardElement(goodInfo)); //получаем массив HTML-элементов
         longGoodsList.append(...cardElements); //append может сразу принимать несколько аргументов для вставки на страницу, через запятую, а spread оператор разложит элементы массива как раз через запятую
 
         document.body.classList.add('show-goods'); //при наличии этого класса у body, на странице скроется слайдер, и блок с товарами, но появится другой (длинный)
@@ -140,18 +240,18 @@ const scrollToBlock = (event, link) => {
     const filterCards = (key, value) => {
         getGoods()
             .then((result) => {
-                const filtered = result.filter((cardInfo) => cardInfo[key] === value); //если взятые key и value, из дата-атрибутов, совпадают со значнием текущего объекта, то этот объект подходит
+                const filtered = result.filter((goodInfo) => goodInfo[key] === value); //если взятые key и value, из дата-атрибутов, совпадают со значнием текущего объекта, то этот объект подходит
                 renderCards(filtered);
             })
             .catch((err) => console.error(err));
     };
 
-    //показываем товары только нужной категории, но если была нажата кнопка All или View All, то у них нету дата-атрибутов, и в функцию filterCards передадутся два undefined, и там при фильтрации, будет условие cardInfo[undefined] === undefined -> true, и так как функция фльтрации на всех элементах вернет true, то все товары выведутся на странице
+    //показываем товары только нужной категории, но если была нажата кнопка All или View All, то у них нету дата-атрибутов, и в функцию filterCards передадутся два undefined, и там при фильтрации, будет условие goodInfo[undefined] === undefined -> true, и так как функция фльтрации на всех элементах вернет true, то все товары выведутся на странице
     chooseCategoryElems.forEach((item) => {
         item.addEventListener('click', (event) => {
             event.preventDefault();
             filterCards(item.dataset.key, item.dataset.value);
-            setTimeout(() => scrollToBlock(event), 500);
+            setTimeout(() => scrollToBlock(event), 200); //если в scrollToBlock не передать второй аргумент, то прокрутка будет на самый верх, до body
         });
     });
 })();
