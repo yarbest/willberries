@@ -75,7 +75,6 @@ const scrollToBlock = (event, link) => {
 
 //cart
 (function () {
-    //Часть, ответсвенная за работу корзины
     const cartTableGoods = document.querySelector('.cart-table__goods');
     const cartTableTotal = document.querySelector('.cart-table__total');
     const cartCount = document.querySelector('.cart-count');
@@ -170,7 +169,7 @@ const scrollToBlock = (event, link) => {
 
     btnClearCart.addEventListener('click', cart.clearCart.bind(cart)); //из-за слушателя событий у нас теряется this, при вызове cart.clearCart, так как у нас тут не стрелочная функ-ция, то используем bind, он привяжет нужный this
 
-    //Делегирование
+    //управление корзиной
     cartTableGoods.addEventListener('click', (event) => {
         const target = event.target;
 
@@ -183,12 +182,44 @@ const scrollToBlock = (event, link) => {
         }
     });
 
+    //добавление в корзину товаров
     document.body.addEventListener('click', (event) => {
         const btnAddToCart = event.target.closest('.add-to-cart');
         if (btnAddToCart) {
             btnAddToCart.classList.add('active');
             cart.addGood(btnAddToCart.dataset.id);
         }
+    });
+
+    //make order - отправка формы =================================================
+    const modalForm = document.querySelector('.modal-form');
+
+    const postData = (userData) => {
+        return fetch('server.php', {
+            method: 'POST',
+            body: userData,
+        });
+    };
+
+    modalForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const formData = new FormData(modalForm);
+        formData.append('order', JSON.stringify(cart.cartGoods));
+
+        postData(formData)
+            .then((response) => {
+                if (response.ok) {
+                    alert('The order has been sent');
+                    modalForm.reset();
+                    cart.clearCart();
+                } else throw new Error(response.status);
+            })
+            .catch((err) => {
+                if (err.message === '405') alert("This server doesn't support receiving data");
+                //405 - нет доступа к серверу
+                else alert('Unfortunatelly something went wrong. Please, try later');
+                console.error(err);
+            });
     });
 })();
 
