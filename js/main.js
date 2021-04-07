@@ -10,6 +10,23 @@ const mySwiper = new Swiper('.swiper-container', {
     },
 });
 
+//get goods
+//при каждом добавлении товара в корзину и при каждом выборе категории - у нас происходило обращение к серверу, поэтому мы 1 раз сохраним ответ от сервера в отдельную переменную, и будем к ней обращаться при помощи замыкания
+const copyGoods = () => {
+    const data = []; //эта переменная будет замкнута с анонимной функцией
+
+    return async () => {
+        if (data.length) return data; //если данные уже были загружены, то больше не надо
+
+        const response = await fetch('db/db.json'); //пока эта строчка не выполнится - следующая не начнется
+        if (response.ok) {
+            data.push(...(await response.json()));
+            return data; //в одну строчку записать не получается, тогда возвращается просто кол-во элементов, потому-что push возвращает колво аргументов, которое ему передали
+        } else throw new Error('Error ' + response.status);
+    };
+};
+const getGoods = copyGoods(); //в getGoods лежит асинхронная функция, которая возвращает промис, в котором лежит массив данных
+
 //smooth scroll
 const scrollToBlock = (event, link) => {
     event.preventDefault();
@@ -56,19 +73,13 @@ const scrollToBlock = (event, link) => {
     }
 };
 
-//get goods
-const getGoods = async () => {
-    const response = await fetch('db/db.json'); //пока эта строчка не выполнится - следующая не начнется
-    if (response.ok) return response.json();
-    else throw new Error('Error ' + response.status);
-};
-
-//cart and moal
+//cart
 (function () {
     //Часть, ответсвенная за работу корзины
     const cartTableGoods = document.querySelector('.cart-table__goods');
     const cartTableTotal = document.querySelector('.cart-table__total');
     const cartCount = document.querySelector('.cart-count');
+    const btnClearCart = document.querySelector('.btn-clear-cart');
 
     const cart = {
         cartGoods: [],
@@ -96,7 +107,9 @@ const getGoods = async () => {
                 return total + goodInfo.price * goodInfo.count;
             }, 0);
 
-            cartTableTotal.textContent = totalPrice + '$';
+            cartTableTotal.textContent = totalPrice === 0 ? '' : totalPrice + '$';
+
+            this.changeCartCount();
         },
 
         addGood(id) {
@@ -104,10 +117,15 @@ const getGoods = async () => {
             //если в карзине уже есть товар, который пытаемся добавить, то в корзине нужно просто увеличить count для данного товара, а не добавлять еще такой же
             if (goodInfo) {
                 this.plusGood(id);
+                this.changeCartCount();
             } else {
                 getGoods()
                     .then((result) => result.find((goodInfo) => goodInfo.id === id)) //вернет объект с данными о товаре, у которого индекс равен индексу кнопки Shop Now, на которую нажали
-                    .then(({ id, name, price }) => this.cartGoods.push({ id, name, price, count: 1 })) //добавляем в cartGoods, информацию из нужного товара
+                    .then(({ id, name, price }) => {
+                        this.cartGoods.push({ id, name, price, count: 1 }); //добавляем в cartGoods, информацию из нужного товара
+                        this.changeCartCount();
+                        cart.renderCart();
+                    })
                     .catch((err) => console.error('Ошибка: ' + err));
             }
         },
@@ -138,7 +156,19 @@ const getGoods = async () => {
             });
             this.renderCart();
         },
+
+        clearCart() {
+            this.cartGoods.length = 0;
+            this.renderCart();
+        },
+
+        changeCartCount() {
+            cartCount.textContent = this.cartGoods.reduce((sum, goodInfo) => sum + goodInfo.count, 0);
+            cartCount.textContent = cartCount.textContent === '0' ? '' : cartCount.textContent;
+        },
     };
+
+    btnClearCart.addEventListener('click', cart.clearCart.bind(cart)); //из-за слушателя событий у нас теряется this, при вызове cart.clearCart, так как у нас тут не стрелочная функ-ция, то используем bind, он привяжет нужный this
 
     //Делегирование
     cartTableGoods.addEventListener('click', (event) => {
@@ -160,15 +190,16 @@ const getGoods = async () => {
             cart.addGood(btnAddToCart.dataset.id);
         }
     });
+})();
 
+//modal
+(function () {
     //Часть, ответсвенная за модальное окно
     const buttonCart = document.querySelector('.button-cart');
     const modalCart = document.querySelector('#modal-cart');
 
     //при открытии модального окна, еще будет рендериться корзина
     const openModal = () => {
-        cart.renderCart();
-
         modalCart.classList.add('show');
         document.body.style.paddingRight = `${window.innerWidth - document.documentElement.offsetWidth}px`; //компенсируем сдвиг, при убирании полосы прокрутки
         document.body.style.overflow = 'hidden'; //эта строка должна стоять после добавления отступа для body, так как при overflow = 'hidden' полоса прокрутки пропадает, и window.innerWidth уменьшается, и значение paddinga будет не правильным
