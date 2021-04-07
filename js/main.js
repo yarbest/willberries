@@ -192,35 +192,64 @@ const scrollToBlock = (event, link) => {
     });
 
     //make order - отправка формы =================================================
-    const modalForm = document.querySelector('.modal-form');
+    let modalForm = document.querySelector('.modal-form');
+    let status = document.querySelector('.form-status');
 
-    const postData = (userData) => {
-        return fetch('server.php', {
-            method: 'POST',
-            body: userData,
-        });
+    const validate = (userName, userPhone) => {
+        let flag;
+        status.innerHTML = '';
+
+        if (userName.trim().length === 0 || userPhone.trim().length === 0) {
+            status.insertAdjacentHTML('beforeend', 'Fields must be filled!<br/>');
+            status.classList.contains('error') ? '' : status.classList.add('error');
+            flag = false;
+        }
+
+        if (/\d|[^а-яё\s]/gi.test(userName)) {
+            status.insertAdjacentHTML('beforeend', "Name must'n contain digits or Not cyrlic symbols!<br/>");
+            status.classList.contains('error') ? '' : status.classList.add('error');
+            flag = false;
+        }
+
+        if (!/^((\+38)|(38))?[(-\s]?\d\d\d[)-\s]?[-\s]?\d\d\d[-\s]?\d\d[-\s]?\d\d/gi.test(userPhone)) {
+            status.insertAdjacentHTML('beforeend', 'Phone number must be in a correct Ukrainian format!<br/>');
+            status.classList.contains('error') ? '' : status.classList.add('error');
+            flag = false;
+        }
+        if (flag === false) return false;
+        else return true;
     };
 
-    modalForm.addEventListener('submit', (event) => {
+    const handleSubmit = (event) => {
         event.preventDefault();
-        const formData = new FormData(modalForm);
+        modalForm = document.querySelector('.modal-form'); //обновляем данные, введенные пользователем
+        if (!validate(modalForm[0].value, modalForm[1].value)) return;
+
+        let formData = new FormData(event.target);
         formData.append('order', JSON.stringify(cart.cartGoods));
 
-        postData(formData)
+        fetch(event.target.action, {
+            method: modalForm.method,
+            body: formData,
+            headers: {
+                Accept: 'application/json',
+            },
+        })
             .then((response) => {
-                if (response.ok) {
-                    alert('The order has been sent');
-                    modalForm.reset();
-                    cart.clearCart();
-                } else throw new Error(response.status);
+                if (!response.ok) throw new Error(response.status);
+                status.classList.add('success');
+                status.classList.remove('error');
+                status.innerHTML = 'Thanks for your order! We will contact with you soon.';
+                modalForm.reset();
+                cart.clearCart();
             })
-            .catch((err) => {
-                if (err.message === '405') alert("This server doesn't support receiving data");
-                //405 - нет доступа к серверу
-                else alert('Unfortunatelly something went wrong. Please, try later');
-                console.error(err);
+            .catch((error) => {
+                status.classList.toggle('error');
+                status.innerHTML = 'Oops! There was a problem submitting your order';
             });
-    });
+    };
+
+    modalForm.addEventListener('submit', handleSubmit);
 })();
 
 //modal
@@ -229,7 +258,6 @@ const scrollToBlock = (event, link) => {
     const buttonCart = document.querySelector('.button-cart');
     const modalCart = document.querySelector('#modal-cart');
 
-    //при открытии модального окна, еще будет рендериться корзина
     const openModal = () => {
         modalCart.classList.add('show');
         document.body.style.paddingRight = `${window.innerWidth - document.documentElement.offsetWidth}px`; //компенсируем сдвиг, при убирании полосы прокрутки

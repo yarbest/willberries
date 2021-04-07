@@ -406,6 +406,7 @@ button {
     background-color: #e0e0ff;
     min-width: 600px;
     max-height: 400px;
+    max-width: 700px;
     padding: 30px;
     overflow: auto;
     position: relative;
@@ -425,8 +426,8 @@ button {
 .modal-close {
     position: absolute;
     background-color: transparent;
-    right: 0px;
-    top: 0px;
+    right: 15px;
+    top: 15px;
     font-size: 24px;
     border: none;
 }
@@ -455,6 +456,18 @@ button {
     border-radius: 20px;
     border-style: none;
     margin-bottom: 20px;
+}
+
+.form-status {
+    margin: 0;
+}
+
+.form-status.success {
+    color: green;
+}
+
+.form-status.error {
+    color: red;
 }
 
 .cart-table {
