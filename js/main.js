@@ -73,8 +73,9 @@ const scrollToBlock = (event, link) => {
     }
 };
 
-//cart
+//cart, modal, send order
 (function () {
+    //Часть, ответсвенная за корзину===================================
     const cartTableGoods = document.querySelector('.cart-table__goods');
     const cartTableTotal = document.querySelector('.cart-table__total');
     const cartCount = document.querySelector('.cart-count');
@@ -190,6 +191,7 @@ const scrollToBlock = (event, link) => {
             cart.addGood(btnAddToCart.dataset.id);
         }
     });
+    //Часть, ответсвенная за корзину==============================================
 
     //make order - отправка формы =================================================
     let modalForm = document.querySelector('.modal-form');
@@ -198,6 +200,12 @@ const scrollToBlock = (event, link) => {
     const validate = (userName, userPhone) => {
         let flag;
         status.innerHTML = '';
+
+        if (cart.cartGoods.length === 0) {
+            status.insertAdjacentHTML('beforeend', 'Cart is empty<br/>');
+            status.classList.contains('error') ? '' : status.classList.add('error');
+            flag = false;
+        }
 
         if (userName.trim().length === 0 || userPhone.trim().length === 0) {
             status.insertAdjacentHTML('beforeend', 'Fields must be filled!<br/>');
@@ -223,7 +231,10 @@ const scrollToBlock = (event, link) => {
     const handleSubmit = (event) => {
         event.preventDefault();
         modalForm = document.querySelector('.modal-form'); //обновляем данные, введенные пользователем
-        if (!validate(modalForm[0].value, modalForm[1].value)) return;
+        if (!validate(modalForm[0].value, modalForm[1].value)) {
+            status.classList.add('error');
+            return;
+        }
 
         let formData = new FormData(event.target);
         // formData.append('order', JSON.stringify(cart.cartGoods));
@@ -234,11 +245,18 @@ const scrollToBlock = (event, link) => {
                 
                 ID: ${goodInfo.id}
                 Название: ${goodInfo.name}
-                Цена: ${goodInfo.price}
+                Цена: ${goodInfo.price}$
                 Количество: ${goodInfo.count}
-                Общая цена: ${goodInfo.count * goodInfo.price}`
+                Общая цена за товар: ${goodInfo.count * goodInfo.price}$`
             );
         });
+
+        formData.append(
+            'order',
+            `
+
+            Общая сумма заказа: ${cartTableTotal.textContent}`
+        );
 
         fetch(event.target.action, {
             method: modalForm.method,
@@ -256,17 +274,16 @@ const scrollToBlock = (event, link) => {
                 cart.clearCart();
             })
             .catch((error) => {
-                status.classList.toggle('error');
+                status.classList.add('error');
+                status.classList.remove('success');
                 status.innerHTML = 'Oops! There was a problem submitting your order';
             });
     };
 
     modalForm.addEventListener('submit', handleSubmit);
-})();
+    //make order - отправка формы ================================================
 
-//modal
-(function () {
-    //Часть, ответсвенная за модальное окно
+    //Часть, ответсвенная за модальное окно=======================================
     const buttonCart = document.querySelector('.button-cart');
     const modalCart = document.querySelector('#modal-cart');
 
@@ -284,6 +301,8 @@ const scrollToBlock = (event, link) => {
         modalCart.classList.remove('show');
         document.body.removeAttribute('style');
         document.removeEventListener('keydown', closeModal);
+
+        status.innerHTML = '';
     };
 
     buttonCart.addEventListener('click', openModal);
