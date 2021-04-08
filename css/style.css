@@ -16,10 +16,22 @@ img {
     padding: 15px 0;
 }
 
+.header-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .navigation {
+    display: flex;
+    justify-content: space-around;
     list-style: none;
     padding: 0;
     margin: 0;
+}
+
+.navigation-item:not(:last-child) {
+    margin-right: 30px;
 }
 
 .navigation-link {
@@ -556,6 +568,77 @@ button {
     width: 5px;
 }
 
+.visuallyHidden {
+    position: absolute;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    width: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+}
+
+.hamburger {
+    width: 30px;
+    height: 30px;
+    position: relative;
+}
+
+.hamburger .bar {
+    padding: 0;
+    width: 30px;
+    height: 3px;
+    background-color: #000;
+    display: block;
+    border-radius: 4px;
+    transition: all 0.4s ease-in-out;
+    position: absolute;
+}
+
+.bar1 {
+    top: 5px;
+}
+
+.bar2,
+.bar3 {
+    top: 13.5px;
+}
+
+.bar3 {
+    right: 0;
+}
+
+.bar4 {
+    bottom: 5px;
+}
+
+/* HAMBURGER 2 */
+
+.checkbox2:checked + label > .hamburger2 > .bar1 {
+    transform: translateX(40px);
+    background-color: transparent;
+}
+
+.checkbox2:checked + label > .hamburger2 > .bar2 {
+    transform: rotate(45deg);
+}
+
+.checkbox2:checked + label > .hamburger2 > .bar3 {
+    transform: rotate(-45deg);
+}
+
+.checkbox2:checked + label > .hamburger2 > .bar4 {
+    transform: translateX(-40px);
+    background-color: transparent;
+}
+
+.toggle-sidebar {
+    display: none;
+    margin-left: auto;
+    margin-right: 20px;
+}
+
 @media (max-width: 1200px) {
     .slide-1 {
         background-size: cover;
@@ -567,6 +650,20 @@ button {
 }
 
 @media (max-width: 992px) {
+    .header {
+        padding: 10px 0;
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 3;
+        background-color: #fff;
+    }
+
+    .slider,
+    .long-goods {
+        margin-top: 60px;
+    }
+
     .slider-nav {
         display: none;
     }
@@ -575,6 +672,33 @@ button {
         min-width: 400px;
         max-height: 300px;
         padding: 20px;
+    }
+
+    .toggle-sidebar {
+        display: block;
+    }
+    .navigation {
+        flex-wrap: wrap;
+        padding: 10px 20px;
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .navigation.active {
+        transition: transform, opacity 0.5s ease;
+        opacity: 1;
+        pointer-events: all;
+        z-index: 2;
+        width: 100%;
+        left: 0;
+        top: 55px;
+        background-color: #fff;
+        box-shadow: 0px 0px 20px -1px rgba(0, 0, 0, 0.58);
+    }
+
+    .header-body {
+        position: relative;
     }
 }
 
@@ -602,5 +726,10 @@ button {
         min-width: 300px;
         max-height: 400px;
         padding: 20px;
+    }
+}
+@media (max-width: 380px) {
+    .toggle-sidebar {
+        margin: 0 10px;
     }
 }

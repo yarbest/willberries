@@ -10,6 +10,13 @@ const mySwiper = new Swiper('.swiper-container', {
     },
 });
 
+const navigation = document.querySelector('.navigation');
+const toggleSidebar = document.querySelector('.toggle-sidebar');
+
+toggleSidebar.addEventListener('click', () => {
+    navigation.classList.toggle('active');
+});
+
 //get goods
 //при каждом добавлении товара в корзину и при каждом выборе категории - у нас происходило обращение к серверу, поэтому мы 1 раз сохраним ответ от сервера в отдельную переменную, и будем к ней обращаться при помощи замыкания
 const copyGoods = () => {
