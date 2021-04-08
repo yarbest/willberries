@@ -22,6 +22,10 @@ img {
     justify-content: space-between;
 }
 
+.button-cart .button-icon {
+    margin-left: 0;
+}
+
 .navigation {
     display: flex;
     justify-content: space-around;
