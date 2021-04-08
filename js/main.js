@@ -206,12 +206,12 @@ const scrollToBlock = (event, link) => {
         }
 
         if (/\d|[^а-яё\s]/gi.test(userName)) {
-            status.insertAdjacentHTML('beforeend', "Name must'n contain digits or Not cyrlic symbols!<br/>");
+            status.insertAdjacentHTML('beforeend', "Name must'n contain digits or Not cyrillic symbols!<br/>");
             status.classList.contains('error') ? '' : status.classList.add('error');
             flag = false;
         }
 
-        if (!/^((\+38)|(38))?[(-\s]?\d\d\d[)-\s]?[-\s]?\d\d\d[-\s]?\d\d[-\s]?\d\d/gi.test(userPhone)) {
+        if (!/^((\+38)|(38))?[(-\s]?\d\d\d[)-\s]?[-\s]?\d\d\d[-\s]?\d\d[-\s]?\d\d$/gi.test(userPhone)) {
             status.insertAdjacentHTML('beforeend', 'Phone number must be in a correct Ukrainian format!<br/>');
             status.classList.contains('error') ? '' : status.classList.add('error');
             flag = false;
@@ -226,7 +226,19 @@ const scrollToBlock = (event, link) => {
         if (!validate(modalForm[0].value, modalForm[1].value)) return;
 
         let formData = new FormData(event.target);
-        formData.append('order', JSON.stringify(cart.cartGoods));
+        // formData.append('order', JSON.stringify(cart.cartGoods));
+        cart.cartGoods.forEach((goodInfo) => {
+            formData.append(
+                'order',
+                `
+                
+                ID: ${goodInfo.id}
+                Название: ${goodInfo.name}
+                Цена: ${goodInfo.price}
+                Количество: ${goodInfo.count}
+                Общая цена: ${goodInfo.count * goodInfo.price}`
+            );
+        });
 
         fetch(event.target.action, {
             method: modalForm.method,
