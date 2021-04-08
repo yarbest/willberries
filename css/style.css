@@ -726,6 +726,11 @@ button {
 }
 
 @media (max-width: 576px) {
+    .header.container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
     .slide-title {
         font-size: 36px;
         line-height: 1.4;
