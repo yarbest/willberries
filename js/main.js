@@ -203,25 +203,21 @@ const scrollToBlock = (event, link) => {
 
         if (cart.cartGoods.length === 0) {
             status.insertAdjacentHTML('beforeend', 'Cart is empty<br/>');
-            status.classList.contains('error') ? '' : status.classList.add('error');
             flag = false;
         }
 
         if (userName.trim().length === 0 || userPhone.trim().length === 0) {
             status.insertAdjacentHTML('beforeend', 'Fields must be filled!<br/>');
-            status.classList.contains('error') ? '' : status.classList.add('error');
             flag = false;
         }
 
         if (/\d|[^а-яё\s]/gi.test(userName)) {
             status.insertAdjacentHTML('beforeend', "Name must'n contain digits or Not cyrillic symbols!<br/>");
-            status.classList.contains('error') ? '' : status.classList.add('error');
             flag = false;
         }
 
-        if (!/^((\+38)|(38))?[(-\s]?\d\d\d[)-\s]?[-\s]?\d\d\d[-\s]?\d\d[-\s]?\d\d$/gi.test(userPhone)) {
+        if (!/^((\+38)|(38))?[(-\s]?\d\d\d[)-\s]?[-\s]?\d\d\d[-\s]?\d\d[-\s]?\d\d$/gi.test(userPhone) && userPhone.length !== 0) {
             status.insertAdjacentHTML('beforeend', 'Phone number must be in a correct Ukrainian format!<br/>');
-            status.classList.contains('error') ? '' : status.classList.add('error');
             flag = false;
         }
         if (flag === false) return false;
@@ -233,6 +229,7 @@ const scrollToBlock = (event, link) => {
         modalForm = document.querySelector('.modal-form'); //обновляем данные, введенные пользователем
         if (!validate(modalForm[0].value, modalForm[1].value)) {
             status.classList.add('error');
+            status.classList.remove('success');
             return;
         }
 
