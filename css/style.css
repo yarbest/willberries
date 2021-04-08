@@ -709,6 +709,10 @@ button {
 }
 
 @media (max-width: 768px) {
+    .header.container {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
     .navigation {
         justify-content: center;
     }
