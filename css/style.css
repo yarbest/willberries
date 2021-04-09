@@ -419,7 +419,7 @@ button {
 }
 
 .modal {
-    background-color: lightgray;
+    background-color: #e0e0ff;
     min-width: 600px;
     max-height: 400px;
     max-width: 700px;
