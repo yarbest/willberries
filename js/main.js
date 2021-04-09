@@ -80,7 +80,7 @@ const scrollToBlock = (event, link) => {
     }
 };
 
-//cart, modal, send order
+//cart, modal, send order, localStorage
 (function () {
     //Часть, ответсвенная за корзину===================================
     const cartTableGoods = document.querySelector('.cart-table__goods');
@@ -113,25 +113,23 @@ const scrollToBlock = (event, link) => {
             const totalPrice = this.cartGoods.reduce((total, goodInfo) => {
                 return total + goodInfo.price * goodInfo.count;
             }, 0);
-
             cartTableTotal.textContent = totalPrice === 0 ? '' : totalPrice + '$';
 
             this.changeCartCount();
+            this.setToStorage(); //при любом изменении в корзине - нужно обновлять localStorage
         },
 
         addGood(id) {
-            const goodInfo = cart.cartGoods.find((goodInfo) => goodInfo.id === id);
+            const goodInfo = this.cartGoods.find((goodInfo) => goodInfo.id === id);
             //если в карзине уже есть товар, который пытаемся добавить, то в корзине нужно просто увеличить count для данного товара, а не добавлять еще такой же
             if (goodInfo) {
                 this.plusGood(id);
-                this.changeCartCount();
             } else {
                 getGoods()
                     .then((result) => result.find((goodInfo) => goodInfo.id === id)) //вернет объект с данными о товаре, у которого индекс равен индексу кнопки Shop Now, на которую нажали
                     .then(({ id, name, price }) => {
                         this.cartGoods.push({ id, name, price, count: 1 }); //добавляем в cartGoods, информацию из нужного товара
-                        this.changeCartCount();
-                        cart.renderCart();
+                        this.renderCart();
                     })
                     .catch((err) => console.error('Ошибка: ' + err));
             }
@@ -173,7 +171,18 @@ const scrollToBlock = (event, link) => {
             cartCount.textContent = this.cartGoods.reduce((sum, goodInfo) => sum + goodInfo.count, 0);
             cartCount.textContent = cartCount.textContent === '0' ? '' : cartCount.textContent;
         },
+
+        getFromStorage() {
+            this.cartGoods = JSON.parse(localStorage.getItem('cart'));
+            this.cartGoods = this.cartGoods || []; //если в хранилище пусто, то this.cartGoods нужно обязательно сделать массивом, иначе не будут работать методы push и find, которые выше
+            this.renderCart();
+        },
+
+        setToStorage() {
+            localStorage.setItem('cart', JSON.stringify(this.cartGoods));
+        },
     };
+    cart.getFromStorage();
 
     btnClearCart.addEventListener('click', cart.clearCart.bind(cart)); //из-за слушателя событий у нас теряется this, при вызове cart.clearCart, так как у нас тут не стрелочная функ-ция, то используем bind, он привяжет нужный this
 
@@ -241,7 +250,6 @@ const scrollToBlock = (event, link) => {
         }
 
         let formData = new FormData(event.target);
-        // formData.append('order', JSON.stringify(cart.cartGoods));
         cart.cartGoods.forEach((goodInfo) => {
             formData.append(
                 'order',
