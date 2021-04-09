@@ -213,41 +213,43 @@ const scrollToBlock = (event, link) => {
     let modalForm = document.querySelector('.modal-form');
     let status = document.querySelector('.form-status');
 
-    const validate = (userName, userPhone) => {
+    const validate = (nameInput, phoneInput, status) => {
         let flag;
         status.innerHTML = '';
+        nameInput.removeAttribute('style'); //каждый раз убираем красную обводку у неправильных инпутов
+        phoneInput.removeAttribute('style');
 
-        if (cart.cartGoods.length === 0) {
-            status.insertAdjacentHTML('beforeend', 'Cart is empty<br/>');
+        const showError = (text, ...fields) => {
+            status.insertAdjacentHTML('beforeend', `${text}<br/>`);
+            status.classList.add('error');
+            status.classList.remove('success');
+
+            fields.forEach((input) => (input.style.borderColor = 'red'));
             flag = false;
+        };
+
+        if (cart.cartGoods.length === 0) showError(`Cart is empty`);
+
+        if (nameInput.value.trim().length === 0) showError(`Name field must be filled!`, nameInput);
+        if (phoneInput.value.trim().length === 0) showError(`Phone field must be filled!`, phoneInput);
+
+        if (/\d|[^а-яё\s]/gi.test(nameInput.value)) showError(`Name must'n contain digits or Not cyrillic symbols!`, nameInput);
+
+        if (
+            !/^((\+38)|(38))?[(-\s]?\d\d\d[)-\s]?[-\s]?\d\d\d[-\s]?\d\d[-\s]?\d\d$/gi.test(phoneInput.value) &&
+            phoneInput.value.length !== 0
+        ) {
+            showError(`Phone number must be in a correct Ukrainian format!`, phoneInput);
         }
 
-        if (userName.trim().length === 0 || userPhone.trim().length === 0) {
-            status.insertAdjacentHTML('beforeend', 'Fields must be filled!<br/>');
-            flag = false;
-        }
-
-        if (/\d|[^а-яё\s]/gi.test(userName)) {
-            status.insertAdjacentHTML('beforeend', "Name must'n contain digits or Not cyrillic symbols!<br/>");
-            flag = false;
-        }
-
-        if (!/^((\+38)|(38))?[(-\s]?\d\d\d[)-\s]?[-\s]?\d\d\d[-\s]?\d\d[-\s]?\d\d$/gi.test(userPhone) && userPhone.length !== 0) {
-            status.insertAdjacentHTML('beforeend', 'Phone number must be in a correct Ukrainian format!<br/>');
-            flag = false;
-        }
         if (flag === false) return false;
         else return true;
     };
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        modalForm = document.querySelector('.modal-form'); //обновляем данные, введенные пользователем
-        if (!validate(modalForm[0].value, modalForm[1].value)) {
-            status.classList.add('error');
-            status.classList.remove('success');
-            return;
-        }
+        modalForm = document.querySelector('.modal-form'); //при каждой отправке формы - обновляем данные, введенные пользователем
+        if (!validate(modalForm[0], modalForm[1], status)) return;
 
         let formData = new FormData(event.target);
         cart.cartGoods.forEach((goodInfo) => {
@@ -315,6 +317,8 @@ const scrollToBlock = (event, link) => {
         document.removeEventListener('keydown', closeModal);
 
         status.innerHTML = '';
+        modalForm[0].removeAttribute('style');
+        modalForm[1].removeAttribute('style');
     };
 
     buttonCart.addEventListener('click', openModal);

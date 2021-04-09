@@ -470,7 +470,7 @@ button {
     height: 40px;
     padding: 10px;
     border-radius: 20px;
-    border-style: none;
+    border: 1px solid transparent;
     margin-bottom: 20px;
 }
 
